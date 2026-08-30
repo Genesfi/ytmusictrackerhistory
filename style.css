@@ -1,0 +1,452 @@
+/* ==========================================================================
+   YouTube Music Native-Style Tracker & History Enhancer (1:1 Exact Match)
+   ========================================================================== */
+
+/* === 1. SIDEBAR HISTORY MENU BUTTON === */
+ytmusic-guide-entry-renderer.ytm-custom-sidebar-item {
+    display: flex !important;
+    align-items: center !important;
+    width: 224px !important;
+    height: 48px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #ffffff !important;
+    transition: background-color 0.15s ease !important;
+    user-select: none !important;
+    box-sizing: border-box !important;
+}
+
+ytmusic-guide-entry-renderer.ytm-custom-sidebar-item:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+ytmusic-guide-entry-renderer.ytm-custom-sidebar-item[active],
+ytmusic-guide-entry-renderer.ytm-custom-sidebar-item.is-active-tab {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.ytm-custom-sidebar-link {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 48px !important;
+    padding: 0 16px !important;
+    box-sizing: border-box !important;
+    text-decoration: none !important;
+    color: #ffffff !important;
+    gap: 24px !important;
+}
+
+.ytm-custom-sidebar-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 24px !important;
+    height: 24px !important;
+    flex-shrink: 0 !important;
+    color: #ffffff !important;
+}
+
+.ytm-custom-sidebar-title {
+    font-family: "Roboto", "Noto", sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    line-height: 24px !important;
+    color: #ffffff !important;
+    letter-spacing: normal !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* === 2. HOMEPAGE NATIVE SHELF CONTAINER === */
+@keyframes ytmShelfFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ytm-tracker-native-shelf {
+    display: block !important;
+    width: 100% !important;
+    margin-top: 28px !important;
+    margin-bottom: 52px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    background: transparent !important;
+    border: none !important;
+    padding-left: var(--ytmusic-page-padding, var(--ytmusic-responsive-padding, 98.5px)) !important;
+    padding-right: var(--ytmusic-page-padding, var(--ytmusic-responsive-padding, 98.5px)) !important;
+    font-family: "YouTube Sans", "Roboto", "Segoe UI", sans-serif;
+    animation: ytmShelfFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Header Row */
+.ytm-native-header-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    margin-bottom: 20px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 16px !important;
+}
+
+/* Horizontal Avatar + Text Group */
+.ytm-native-title-group-horizontal {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    min-width: 0 !important;
+}
+
+.ytm-native-header-avatar {
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    background: #252525 !important;
+    flex-shrink: 0 !important;
+}
+
+.ytm-native-header-avatar-placeholder {
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 50% !important;
+    background: #252525 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #aaaaaa !important;
+    flex-shrink: 0 !important;
+}
+
+.ytm-native-title-texts {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+}
+
+.ytm-native-strapline {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #aaaaaa !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 4px !important;
+    font-family: "Roboto", "Segoe UI", sans-serif !important;
+    line-height: 1.2 !important;
+}
+
+.ytm-native-main-title {
+    font-size: 34px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+    letter-spacing: -0.6px !important;
+    font-family: "YouTube Sans", "Roboto", "Segoe UI", sans-serif !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Actions & Navigation Group (Right Pinned) */
+.ytm-native-actions-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+}
+
+/* 1:1 Native "Selengkapnya" Pill Button */
+.ytm-native-more-btn {
+    height: 36px !important;
+    padding: 0 16px !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: transparent !important;
+    color: #f1f1f1 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    font-family: "Roboto", "Segoe UI", sans-serif !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    user-select: none !important;
+    box-sizing: border-box !important;
+}
+
+.ytm-native-more-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.ytm-native-more-btn:active {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 1:1 Native Arrow Carousel Buttons */
+.ytm-native-arrow-controls {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+}
+
+.ytm-native-nav-btn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #f1f1f1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.ytm-native-nav-btn:not([disabled]):hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.ytm-native-nav-btn:not([disabled]):active {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.ytm-native-nav-btn[disabled],
+.ytm-native-nav-btn:disabled {
+    opacity: 0.2 !important;
+    cursor: default !important;
+    pointer-events: none !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* === 3. CAROUSEL & CARDS (1:1 with Dengarkan lagi 340px width & 24px gap) === */
+.ytm-native-carousel-items {
+    display: flex !important;
+    gap: 24px !important;
+    overflow-x: auto !important;
+    scroll-behavior: smooth !important;
+    padding: 2px 0 16px 0 !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    box-sizing: border-box !important;
+    list-style: none !important;
+    margin: 0 !important;
+}
+
+.ytm-native-carousel-items::-webkit-scrollbar {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+}
+
+/* Smooth Slide & Fade In Animation for Cards */
+@keyframes ytmCardSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-16px) scale(0.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+.ytm-tracker-card {
+    width: 340px !important;
+    flex: 0 0 340px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    user-select: none !important;
+    box-sizing: border-box !important;
+    animation: ytmCardSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+
+.ytm-tracker-card:nth-child(1) { animation-delay: 0.00s; }
+.ytm-tracker-card:nth-child(2) { animation-delay: 0.04s; }
+.ytm-tracker-card:nth-child(3) { animation-delay: 0.08s; }
+.ytm-tracker-card:nth-child(4) { animation-delay: 0.12s; }
+.ytm-tracker-card:nth-child(5) { animation-delay: 0.16s; }
+
+.ytm-tracker-card-link {
+    display: flex !important;
+    flex-direction: column !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    width: 100% !important;
+}
+
+.ytm-tracker-thumb-wrapper {
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    background: #181818 !important;
+}
+
+.ytm-tracker-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    transition: transform 0.25s ease !important;
+}
+
+.ytm-tracker-card:hover .ytm-tracker-thumb {
+    transform: scale(1.03) !important;
+}
+
+/* Native-Style Large Center Play Triangle */
+.ytm-tracker-center-play {
+    position: absolute !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    pointer-events: none !important;
+    transition: all 0.2s ease !important;
+    opacity: 0.9 !important;
+}
+
+.ytm-tracker-center-play svg {
+    width: 44px !important;
+    height: 44px !important;
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.7)) !important;
+}
+
+.ytm-tracker-card:hover .ytm-tracker-center-play {
+    opacity: 0 !important;
+    transform: scale(1.1) !important;
+}
+
+/* Play Hover Dark Overlay with Play Circle */
+.ytm-tracker-play-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.25) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 0 !important;
+    transition: opacity 0.2s ease !important;
+}
+
+.ytm-tracker-card:hover .ytm-tracker-play-overlay {
+    opacity: 1 !important;
+}
+
+.ytm-tracker-play-circle {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(4px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transform: scale(0.9) !important;
+    transition: transform 0.2s ease, background-color 0.2s ease !important;
+}
+
+.ytm-tracker-card:hover .ytm-tracker-play-circle {
+    transform: scale(1) !important;
+}
+
+.ytm-tracker-play-circle:hover {
+    background: #ff0033 !important;
+    border-color: #ff0033 !important;
+}
+
+/* Counter Tag (Clean Minimal Vector Badge) */
+.ytm-tracker-counter-tag {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    padding: 3px 8px !important;
+    background: rgba(15, 15, 15, 0.85) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    font-family: "Roboto", sans-serif !important;
+    color: #f1f1f1 !important;
+    z-index: 2 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    line-height: 1 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+.ytm-tracker-flame-icon {
+    width: 13px !important;
+    height: 13px !important;
+    color: #ff4e45 !important;
+    flex-shrink: 0 !important;
+}
+
+/* Text Info (1:1 with native YouTube Music song rows) */
+.ytm-tracker-card-info {
+    margin-top: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.ytm-tracker-card-title {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    line-height: 1.3 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-family: "YouTube Sans", "Roboto", sans-serif !important;
+}
+
+.ytm-tracker-card-subtitle {
+    font-size: 14px !important;
+    color: #909090 !important;
+    margin-top: 4px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    line-height: 1.3 !important;
+    font-family: "Roboto", sans-serif !important;
+}
+
+.ytm-tracker-card:hover .ytm-tracker-card-title {
+    text-decoration: underline !important;
+}
+
+/* Empty State */
+.ytm-native-empty-box {
+    width: 100% !important;
+    padding: 32px 0 !important;
+    color: #888888 !important;
+    font-size: 14px !important;
+}

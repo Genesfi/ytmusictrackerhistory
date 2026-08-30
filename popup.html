@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Music Tracker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            width: 380px;
+            height: 580px;
+            background: #0f0f0f;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* === 1. HEADER === */
+        .header {
+            padding: 14px 16px;
+            background: #161616;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ff0033;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(255, 0, 51, 0.4);
+        }
+
+        .header-icon svg {
+            fill: #ffffff;
+            width: 16px;
+            height: 16px;
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+        }
+
+        .header-badge {
+            font-size: 10px;
+            font-weight: 600;
+            color: #aaaaaa;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 2px 7px;
+            border-radius: 10px;
+        }
+
+        /* === 2. STATS OVERVIEW === */
+        .stats-row {
+            display: flex;
+            padding: 10px 16px;
+            background: #121212;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(255, 78, 69, 0.12);
+            color: #ff4e45;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .stat-value {
+            font-size: 17px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            font-weight: 500;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-top: 2px;
+        }
+
+        /* === 3. SEARCH INPUT === */
+        .search-container {
+            padding: 10px 16px 6px 16px;
+            background: #0f0f0f;
+            flex-shrink: 0;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            width: 15px;
+            height: 15px;
+            color: #777777;
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 34px;
+            background: #1c1c1c;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 12px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: #222222;
+        }
+
+        .search-input::placeholder {
+            color: #777777;
+        }
+
+        /* === 4. TABS === */
+        .tabs {
+            display: flex;
+            padding: 6px 16px 8px 16px;
+            background: #0f0f0f;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 7px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background: transparent;
+            color: #888888;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            background: #252525;
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* === 5. LIST CONTAINER & SONGS === */
+        .list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 16px;
+            scrollbar-width: thin;
+            scrollbar-color: #333 transparent;
+        }
+
+        .list-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .list-container::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 4px;
+        }
+
+        .song-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            gap: 10px;
+            position: relative;
+        }
+
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateX(2px);
+        }
+
+        .song-thumb-wrapper {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            border-radius: 6px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #202020;
+        }
+
+        .song-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .song-play-icon {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            color: #ffffff;
+        }
+
+        .song-item:hover .song-play-icon {
+            opacity: 1;
+        }
+
+        .song-play-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .song-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .song-title {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+        }
+
+        .song-artist {
+            font-size: 11px;
+            color: #909090;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        .song-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .badge-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255, 78, 69, 0.15);
+            border: 1px solid rgba(255, 78, 69, 0.25);
+            font-size: 10px;
+            font-weight: 700;
+            color: #ff4e45;
+        }
+
+        .badge-count svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        .badge-time {
+            font-size: 9.5px;
+            color: #666666;
+        }
+
+        /* === 6. PAGINATION CONTROLS === */
+        .pagination-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: #141414;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            flex-shrink: 0;
+            font-size: 11px;
+        }
+
+        .page-info {
+            color: #888888;
+            font-weight: 500;
+        }
+
+        .page-info span {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .page-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #1e1e1e;
+            color: #f1f1f1;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .page-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #2a2a2a;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* === 7. EMPTY STATE === */
+        .empty-state {
+            padding: 40px 16px;
+            text-align: center;
+            color: #777777;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .empty-state svg {
+            width: 36px;
+            height: 36px;
+            color: #444444;
+        }
+
+        .empty-state p {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* === 8. SETTINGS TAB === */
+        .settings-container {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .setting-card {
+            background: #181818;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .setting-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .setting-card-desc {
+            font-size: 11px;
+            color: #888888;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #333333;
+            transition: .25s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .25s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #ff0033;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        .slider-row {
+            margin-top: 10px;
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #333333;
+            outline: none;
+            accent-color: #ff0033;
+        }
+
+        .btn-danger {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 0, 51, 0.1);
+            border: 1px solid rgba(255, 0, 51, 0.3);
+            border-radius: 6px;
+            color: #ff4d6d;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 0, 51, 0.2);
+        }
+
+        /* === 9. FOOTER === */
+        .footer {
+            padding: 8px 16px;
+            background: #111111;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #666666;
+            flex-shrink: 0;
+        }
+
+        .footer-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00e676;
+            box-shadow: 0 0 6px #00e676;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-brand">
+            <div class="header-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+            </div>
+            <div class="header-title">YT Music Tracker</div>
+        </div>
+        <div class="header-badge">v1.0</div>
+    </header>
+
+    <!-- Stats Overview -->
+    <section class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" id="stat-unique-count">0</div>
+                <div class="stat-label">Lagu Unik</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-10.23.1-.44-.37-.78-.7-.52-2.37 1.87-4.53 4.64-4.6 7.61-.06 2.53 1.26 4.47 1.26 4.47s-1.87-.5-2.83-2.07c-.17-.28-.59-.26-.73.04-.98 2.06-.7 4.54.76 6.38 1.83 2.3 4.87 3.24 7.69 2.27 3.32-1.15 5.5-4.49 4.96-7.95zm-6.66 7.4c-.21.05-.42.08-.64.08-1.54 0-2.85-1-3.23-2.4-.16-.62-.1-1.28.17-1.84.18-.38.71-.34.82.07.35 1.34 1.54 2.34 2.97 2.39.26.01.44.25.35.5-.1.28-.24.55-.44.7z"/>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" id="stat-total-scrobbles">0</div>
+                <div class="stat-label">Total Diputar</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Box -->
+    <div class="search-container" id="search-box-wrapper">
+        <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Cari lagu, artis, atau album..." />
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs">
+        <button class="tab-btn active" id="tab-recent">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.896 8.896 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+            </svg>
+            Terakhir Diputar
+        </button>
+        <button class="tab-btn" id="tab-top">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-10.23.1-.44-.37-.78-.7-.52-2.37 1.87-4.53 4.64-4.6 7.61-.06 2.53 1.26 4.47 1.26 4.47s-1.87-.5-2.83-2.07c-.17-.28-.59-.26-.73.04-.98 2.06-.7 4.54.76 6.38 1.83 2.3 4.87 3.24 7.69 2.27 3.32-1.15 5.5-4.49 4.96-7.95zm-6.66 7.4c-.21.05-.42.08-.64.08-1.54 0-2.85-1-3.23-2.4-.16-.62-.1-1.28.17-1.84.18-.38.71-.34.82.07.35 1.34 1.54 2.34 2.97 2.39.26.01.44.25.35.5-.1.28-.24.55-.44.7z"/>
+            </svg>
+            Paling Sering
+        </button>
+        <button class="tab-btn" id="tab-settings">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+            Pengaturan
+        </button>
+    </nav>
+
+    <!-- Main Song List -->
+    <main class="list-container" id="list-container">
+        <!-- Rendered dynamically -->
+    </main>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-container" id="pagination-controls">
+        <div class="page-info">
+            Halaman <span id="current-page-num">1</span> dari <span id="total-pages-num">1</span> (<span id="total-items-num">0</span> lagu)
+        </div>
+        <div class="page-btn-group">
+            <button class="page-btn" id="btn-first-page" title="Halaman Pertama">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6zM6 6h2v12H6z"/>
+                </svg>
+            </button>
+            <button class="page-btn" id="btn-prev-page" title="Sebelumnya">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                </svg>
+            </button>
+            <button class="page-btn" id="btn-next-page" title="Berikutnya">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                </svg>
+            </button>
+            <button class="page-btn" id="btn-last-page" title="Halaman Terakhir">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6zM16 6h2v12h-2z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Container -->
+    <div class="settings-container" id="settings-container">
+        <div class="setting-card">
+            <div class="toggle-row">
+                <div>
+                    <div class="toggle-label">Shelf "Terakhir Diputar" di Beranda</div>
+                    <div class="setting-card-desc" style="margin-bottom:0; margin-top:2px;">Tampilkan baris riwayat lagu di halaman utama YT Music.</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="setting-shelf-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="setting-card">
+            <div class="toggle-row">
+                <div>
+                    <div class="toggle-label">Tombol "Histori" di Sidebar</div>
+                    <div class="setting-card-desc" style="margin-bottom:0; margin-top:2px;">Sematkan pintasan menu Histori di navigasi samping.</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="setting-sidebar-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="setting-card">
+            <div class="setting-card-title">Waktu Minimal Hitung Putar (Scrobble)</div>
+            <div class="setting-card-desc">Lagu harus diputar minimal selama durasi ini untuk dihitung 1x play.</div>
+            <div class="slider-row">
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+                    <span style="color:#aaa;">Ambang Detik:</span>
+                    <span style="color:#ff4e45; font-weight:700;"><span id="min-sec-val">20</span> detik</span>
+                </div>
+                <input type="range" class="range-slider" id="setting-min-sec" min="5" max="90" step="5" value="20">
+            </div>
+        </div>
+
+        <div class="setting-card" style="border-color: rgba(255, 0, 51, 0.2);">
+            <div class="setting-card-title" style="color: #ff4d6d;">Hapus Data Riwayat</div>
+            <div class="setting-card-desc">Bersihkan seluruh data lagu yang telah dilacak oleh ekstensi ini.</div>
+            <button class="btn-danger" id="btn-clear-history">Bersihkan Semua Riwayat</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div>Gusti N. • YT Music Tracker</div>
+        <div class="footer-status">
+            <div class="status-dot"></div>
+            <span>Auto-sync aktif</span>
+        </div>
+    </footer>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

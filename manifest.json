@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "YT Music Track & History Enhancer",
+  "version": "1.0",
+  "description": "Lacak riwayat lagu nyata, hitung jumlah putaran (play count), tampilkan shelf Terakhir Diputar di Beranda, dan shortcut tombol Histori di sidebar YouTube Music.",
+  "author": "Gusti N.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://music.youtube.com/*"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://music.youtube.com/*"
+      ],
+      "js": [
+        "page-bridge.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://music.youtube.com/*"
+      ],
+      "js": [
+        "tracker.js",
+        "home-injector.js"
+      ],
+      "css": [
+        "style.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
