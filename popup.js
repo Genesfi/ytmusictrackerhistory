@@ -30,6 +30,42 @@ function formatRelativeTime(timestamp) {
     return `${diffDay}h lalu`;
 }
 
+// SPA Play Song Helper (No hard page reloads, prevents 'Leave site?' dialogs)
+function playSongSPA(url, videoId) {
+    const path = videoId ? `/watch?v=${videoId}` : (url ? url.replace(/^https?:\/\/music\.youtube\.com/, '') : '/');
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const activeTab = tabs[0];
+        if (activeTab && activeTab.url && activeTab.url.includes('music.youtube.com')) {
+            chrome.tabs.sendMessage(activeTab.id, {
+                action: 'NAVIGATE',
+                path: path
+            }, (res) => {
+                if (chrome.runtime.lastError || !res) {
+                    chrome.tabs.update(activeTab.id, { url: url || `https://music.youtube.com${path}` });
+                }
+            });
+        } else {
+            chrome.tabs.query({ url: "*://music.youtube.com/*" }, (ytTabs) => {
+                if (ytTabs && ytTabs.length > 0) {
+                    const ytTab = ytTabs[0];
+                    chrome.tabs.sendMessage(ytTab.id, {
+                        action: 'NAVIGATE',
+                        path: path
+                    }, (res) => {
+                        chrome.tabs.update(ytTab.id, { active: true });
+                        if (chrome.runtime.lastError || !res) {
+                            chrome.tabs.update(ytTab.id, { url: url || `https://music.youtube.com${path}` });
+                        }
+                    });
+                } else {
+                    chrome.tabs.create({ url: url || `https://music.youtube.com${path}` });
+                }
+            });
+        }
+    });
+}
+
 // Load data from chrome.storage.local
 async function loadData() {
     return new Promise((resolve) => {
@@ -68,81 +104,147 @@ async function loadData() {
     });
 }
 
-// === MOOD & GENRE CLASSIFIER ENGINE ===
+/// === SMART MOOD & DUAL-DIMENSION GENRE CLASSIFIER ENGINE ===
 const MOOD_DEFINITIONS = {
+    top: {
+        id: 'top',
+        name: '🔥 Paling Sering Diputar',
+        shortName: '🔥 Top Hits',
+        color: '#ff4e45',
+        keywords: []
+    },
+    indie_galau: {
+        id: 'indie_galau',
+        name: '🌧️ Indie Senja & Galau',
+        shortName: '🌧️ Indie Galau',
+        color: '#a29bfe',
+        keywords: ['enau', 'eñau', 'perunggu', 'hindia', 'bernadya', 'nadin', 'feby putri', 'sal priadi', 'fourtwnty', 'danilla', 'kunto aji', 'fiersa besari', 'pamungkas', 'arash buana', 'raissa', 'idgitaf', 'morad', 'soegi', 'iksanskuter', 'jason ranti', '33x', 'abadi', 'sesi', 'potret', 'terbuang']
+    },
+    indie_senang: {
+        id: 'indie_senang',
+        name: '☀️ Indie Semangat & Ceria',
+        shortName: '☀️ Indie Ceria',
+        color: '#fdcb6e',
+        keywords: ['barasuara', 'feast', '.feast', 'the changcuters', 'reality club', 'efek rumah kaca', 'sheila on 7', 'maliq', 'ran', 'diskoria', 'tarung', 'bebas', 'nyala', 'api', 'bakar']
+    },
+    jpop_mellow: {
+        id: 'jpop_mellow',
+        name: '🌸 J-Pop / Anime Melow & Galau',
+        shortName: '🌸 J-Pop Melow',
+        color: '#fd79a8',
+        keywords: ['harucha', 'kotoha', 'kaf', 'aimer', 'zutomayo', 'yorushika', 'radwimps', 'suzume', 'nandemonaiya', 'daisy crown', 'empty old city', 'fallen petals', 'cover', 'utaite', 'acoustic', 'piano', '1991']
+    },
+    jpop_hype: {
+        id: 'jpop_hype',
+        name: '⚡ J-Pop & Anime Energik / Rock',
+        shortName: '⚡ J-Pop Hype',
+        color: '#e84393',
+        keywords: ['yoasobi', 'ado', 'lisa', 'eve', 'kenshi yonezu', 'kick back', 'vocaloid', 'miku', 'hololive', 'suisei', 'opening', 'op', 'rock', 'metal', 'hype', 'speed']
+    },
     galau: {
         id: 'galau',
-        name: '🌧️ Galau & Melow',
-        shortName: '🌧️ Galau',
+        name: '🌧️ Pop Galau & Patah Hati',
+        shortName: '🌧️ Pop Galau',
         color: '#6c5ce7',
-        keywords: ['galau', 'sedih', 'sad', 'lara', 'ballad', 'acoustic', 'akustik', 'heartbreak', 'crying', 'rindu', 'slow', 'slowed', 'reverb', 'kemarin', 'kenangan', 'sendiri', 'lonely', 'nangis', 'patah', 'duka', 'pilu', 'terluka', 'hampa', 'kehilangan', 'berpisah', 'usai', 'pamit', 'cover', 'musicokaay', 'takut', 'trauma', 'sakit']
-    },
-    energic: {
-        id: 'energic',
-        name: '⚡ Energik & Semangat',
-        shortName: '⚡ Energik',
-        color: '#ff4757',
-        keywords: ['rock', 'metal', 'edm', 'remix', 'phonk', 'workout', 'gym', 'beat', 'power', 'hype', 'run', 'running', 'hardcore', 'party', 'dance', 'fast', 'speed', 'nightcore', 'dubstep', 'electro', 'semangat', 'bakar', 'membara', 'energi', 'dj', 'bass']
+        keywords: ['galau', 'sedih', 'sad', 'lara', 'ballad', 'acoustic', 'akustik', 'heartbreak', 'crying', 'rindu', 'slow', 'slowed', 'reverb', 'kemarin', 'kenangan', 'sendiri', 'lonely', 'nangis', 'patah', 'duka', 'pilu', 'terluka', 'hampa', 'kehilangan', 'berpisah', 'usai', 'pamit', 'takut', 'trauma', 'sakit', 'tears', 'hurt', 'pain', 'broken', 'sorrow', 'alone']
     },
     chill: {
         id: 'chill',
-        name: '☕ Santai & Chill',
-        shortName: '☕ Chill',
+        name: '☕ Santai, Chill & Lo-Fi',
+        shortName: '☕ Chill & Lo-Fi',
         color: '#00cec9',
         keywords: ['chill', 'lofi', 'lo-fi', 'relax', 'santai', 'jazz', 'r&b', 'soul', 'coffee', 'kopi', 'senja', 'sore', 'sunset', 'beach', 'vibe', 'calm', 'calming', 'cozy', 'malam', 'night', 'smooth', 'groove', 'rest', 'rehat', 'pantai']
     },
-    jpop: {
-        id: 'jpop',
-        name: '🌸 Anime & J-Pop / K-Pop',
-        shortName: '🌸 J-Pop',
-        color: '#fd79a8',
-        keywords: ['harucha', 'kaf', 'yoasobi', 'ado', 'eve', 'aimer', 'lisa', 'radwimps', 'zutomayo', 'yorushika', 'honeyworks', 'vocaloid', 'anime', 'ost', 'opening', 'ending', 'op', 'ed', 'utaite', 'j-pop', 'jpop', 'k-pop', 'kpop', 'bts', 'blackpink', 'twice', 'newjeans', 'miku', 'hololive', 'suisei', 'es', 'vally', 'shiho', 'cover']
-    },
-    indie: {
-        id: 'indie',
-        name: '🎸 Indie & Pop Indo',
-        shortName: '🎸 Indie Indo',
-        color: '#e17055',
-        keywords: ['enau', 'eñau', 'ari lesmana', 'fourtwnty', 'perunggu', 'hindia', 'feast', '.feast', 'sal priadi', 'bernadya', 'tulus', 'pamungkas', 'fiersa besari', 'danilla', 'kunto aji', 'nadin amizah', 'barasuara', 'efek rumah kaca', 'nadhif', 'jason ranti', 'iksanskuter', 'feby putri', 'arash buana', 'raissa anggiani', 'idgitaf', 'morad', 'soegi']
+    energic: {
+        id: 'energic',
+        name: '⚡ Rock, EDM & High Energy',
+        shortName: '⚡ Rock & EDM',
+        color: '#ff4757',
+        keywords: ['rock', 'metal', 'edm', 'remix', 'phonk', 'workout', 'gym', 'beat', 'power', 'hype', 'run', 'running', 'hardcore', 'party', 'dance', 'fast', 'speed', 'nightcore', 'dubstep', 'electro', 'semangat', 'bakar', 'membara', 'energi', 'dj', 'bass', 'distorsi', 'guitar']
     },
     fokus: {
         id: 'fokus',
-        name: '🎯 Fokus & Belajar',
+        name: '🎯 Fokus & Instrumental',
         shortName: '🎯 Fokus',
         color: '#0984e3',
         keywords: ['instrumental', 'piano', 'study', 'focus', 'belajar', 'ambient', 'concentration', 'coding', 'reading', 'meditation', 'sleep', 'tidur', 'rain', 'hujan', 'cello', 'violin', 'orchestra', 'bgm', 'peaceful', 'klasik', 'classical']
     },
     pop: {
         id: 'pop',
-        name: '✨ Pop & Hits',
-        shortName: '✨ Pop',
-        color: '#feca57',
-        keywords: ['pop', 'hits', 'love', 'cinta', 'lagu', 'music', 'single', 'feat', 'ft.']
+        name: '✨ Pop & Hits Ceria',
+        shortName: '✨ Pop Hits',
+        color: '#00b894',
+        keywords: ['pop', 'hits', 'love', 'cinta', 'lagu', 'music', 'single', 'feat', 'ft.', 'happy', 'senang', 'bahagia', 'indah', 'bersama', 'dance']
     }
 };
+
+// Sentiment & Energy Dictionaries
+const SAD_SENTIMENT_WORDS = [
+    '33x', 'terbuang', 'potret', 'abadi', 'sesi', 'rindu', 'sedih', 'sad', 'lara', 'duka', 'pilu', 
+    'tangis', 'nangis', 'air mata', 'hampa', 'hilang', 'kehilangan', 'kelam', 'patah', 'sendiri', 
+    'lonely', 'usai', 'pamit', 'kemarin', 'luka', 'terluka', 'mati', 'kecewa', 'sunyi', 'sepi', 
+    'takut', 'trauma', 'sakit', 'fall', 'tears', 'hurt', 'pain', 'broken', 'sorrow', 'farewell', 
+    'goodbye', 'alone', 'cry', 'dark', 'empty', 'slow', 'slowed', 'reverb', 'acoustic', 'akustik', 
+    'piano', 'melow', 'mellow', 'ballad', 'sesaat', 'daisy crown', 'empty old city', 'fallen petals'
+];
+
+const HAPPY_HYPE_WORDS = [
+    'tarung', 'bebas', 'nyala', 'api', 'semangat', 'senang', 'bahagia', 'gembira', 'menari', 
+    'cinta', 'indah', 'bersama', 'tertawa', 'senyum', 'terang', 'cahaya', 'pesta', 'dansa', 
+    'jalan', 'rock', 'metal', 'hype', 'fast', 'speed', 'jump', 'power', 'beat', 'party', 
+    'dance', 'run', 'happy', 'joy', 'smile', 'bright', 'sun', 'shine', 'love', 'sweet', 
+    'fly', 'sparkle', 'up', 'kick back', 'anthem', 'hero', 'fight', 'bakar', 'membara'
+];
 
 function classifySongMood(song) {
     if (!song) return 'pop';
     const text = `${song.title || ''} ${song.artist || ''} ${song.album || ''}`.toLowerCase();
 
-    // Check Japanese / Korean characters first
-    if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uac00-\ud7af]/.test(text)) {
-        return 'jpop';
+    // 1. Japanese / Korean Detection (Kanji/Kana/Hangul or J-Pop/K-Pop artist keywords)
+    const isJapaneseOrKorean = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uac00-\ud7af]/.test(text) ||
+        ['harucha', 'kotoha', 'kaf', 'yoasobi', 'ado', 'eve', 'aimer', 'lisa', 'radwimps', 'zutomayo', 'yorushika', 'vocaloid', 'anime', 'jpop', 'j-pop', 'utaite', 'miku'].some(k => text.includes(k));
+
+    if (isJapaneseOrKorean) {
+        const isMellow = SAD_SENTIMENT_WORDS.some(w => text.includes(w)) || 
+            ['cover', 'acoustic', 'ballad', 'slow', 'harucha', 'kotoha', 'kaf', 'aimer'].some(w => text.includes(w));
+        const isHype = HAPPY_HYPE_WORDS.some(w => text.includes(w)) || 
+            ['yoasobi', 'ado', 'lisa', 'kick back', 'op', 'opening', 'rock', 'metal'].some(w => text.includes(w));
+
+        if (isMellow && !isHype) return 'jpop_mellow';
+        if (isHype && !isMellow) return 'jpop_hype';
+        return isMellow ? 'jpop_mellow' : 'jpop_hype';
     }
 
-    // Check specific artist matches for Indie Indo
-    const indieKeywords = MOOD_DEFINITIONS.indie.keywords;
-    if (indieKeywords.some(k => text.includes(k))) {
-        return 'indie';
+    // 2. Indonesian Indie Detection
+    const isIndie = MOOD_DEFINITIONS.indie_galau.keywords.some(k => text.includes(k)) ||
+        MOOD_DEFINITIONS.indie_senang.keywords.some(k => text.includes(k));
+
+    if (isIndie) {
+        const isHappy = MOOD_DEFINITIONS.indie_senang.keywords.some(k => text.includes(k)) || HAPPY_HYPE_WORDS.some(w => text.includes(w));
+        const isSad = SAD_SENTIMENT_WORDS.some(w => text.includes(w)) || MOOD_DEFINITIONS.indie_galau.keywords.some(k => text.includes(k));
+
+        if (isHappy && !isSad) return 'indie_senang';
+        return 'indie_galau';
     }
 
-    // Check other moods
-    const checkOrder = ['jpop', 'galau', 'energic', 'chill', 'fokus', 'pop'];
-    for (const moodKey of checkOrder) {
-        const def = MOOD_DEFINITIONS[moodKey];
-        if (def && def.keywords.some(kw => text.includes(kw))) {
-            return moodKey;
-        }
+    // 3. Instrumental & Focus Detection
+    if (MOOD_DEFINITIONS.fokus.keywords.some(kw => text.includes(kw))) {
+        return 'fokus';
+    }
+
+    // 4. Rock / Metal / EDM Detection
+    if (MOOD_DEFINITIONS.energic.keywords.some(kw => text.includes(kw))) {
+        return 'energic';
+    }
+
+    // 5. Chill & Lo-Fi Detection
+    if (MOOD_DEFINITIONS.chill.keywords.some(kw => text.includes(kw))) {
+        return 'chill';
+    }
+
+    // 6. Galau Pop Detection
+    if (SAD_SENTIMENT_WORDS.some(w => text.includes(w)) || MOOD_DEFINITIONS.galau.keywords.some(kw => text.includes(kw))) {
+        return 'galau';
     }
 
     return 'pop';
@@ -150,18 +252,15 @@ function classifySongMood(song) {
 
 function getMoodAnalysis() {
     const allSongs = Object.values(statsData).length > 0 ? Object.values(statsData) : historyData;
-    const moodGroups = {
-        galau: [],
-        energic: [],
-        chill: [],
-        jpop: [],
-        indie: [],
-        fokus: [],
-        pop: []
-    };
+    const moodGroups = {};
+    const moodPlayCounts = {};
+
+    Object.keys(MOOD_DEFINITIONS).forEach(k => {
+        moodGroups[k] = [];
+        moodPlayCounts[k] = 0;
+    });
 
     let totalPlays = 0;
-    const moodPlayCounts = { galau: 0, energic: 0, chill: 0, jpop: 0, indie: 0, fokus: 0, pop: 0 };
 
     allSongs.forEach(song => {
         const mood = classifySongMood(song);
@@ -173,29 +272,40 @@ function getMoodAnalysis() {
         }
     });
 
+    // Populate Top Tracks (songs played >= 2 times)
+    const topTracks = Object.values(statsData || {}).filter(s => (s.playCount || 0) >= 2).sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
+    if (topTracks.length > 0) {
+        moodGroups.top = topTracks.slice(0, 50);
+        moodPlayCounts.top = topTracks.reduce((acc, s) => acc + (s.playCount || 1), 0);
+    }
+
     // Sort songs inside each mood by playCount descending
     Object.keys(moodGroups).forEach(k => {
-        moodGroups[k].sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
+        if (k !== 'top') {
+            moodGroups[k].sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
+        }
     });
 
-    // Find dominant mood
-    let dominantKey = 'galau';
+    // Find dominant mood (excluding top from dominant banner calculation)
+    let dominantKey = 'jpop_mellow';
     let maxPlays = -1;
+
     Object.keys(moodPlayCounts).forEach(k => {
-        if (moodPlayCounts[k] > maxPlays && moodGroups[k].length > 0) {
+        if (k !== 'top' && moodPlayCounts[k] > maxPlays && moodGroups[k].length > 0) {
             maxPlays = moodPlayCounts[k];
             dominantKey = k;
         }
     });
 
+    const dominantDef = MOOD_DEFINITIONS[dominantKey] || MOOD_DEFINITIONS.pop;
     const dominantPct = totalPlays > 0 ? Math.round((maxPlays / totalPlays) * 100) : 0;
 
     return {
         groups: moodGroups,
-        playCounts: moodPlayCounts,
-        totalPlays,
-        dominantKey,
-        dominantPct
+        dominantKey: dominantKey,
+        dominantDef: dominantDef,
+        dominantPct: dominantPct,
+        totalPlays: totalPlays
     };
 }
 
@@ -256,6 +366,39 @@ function renderMoodView() {
         });
     });
 
+    // Enable mousewheel & drag horizontal scrolling on chips
+    if (!chipsList.__wheelHooked) {
+        chipsList.__wheelHooked = true;
+        chipsList.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                chipsList.scrollLeft += e.deltaY * 0.9;
+            }
+        }, { passive: false });
+
+        let isDown = false;
+        let startX = 0;
+        let initialScroll = 0;
+
+        chipsList.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - chipsList.offsetLeft;
+            initialScroll = chipsList.scrollLeft;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+
+        chipsList.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - chipsList.offsetLeft;
+            const walk = (x - startX) * 1.2;
+            chipsList.scrollLeft = initialScroll - walk;
+        });
+    }
+
     // Render songs in currently selected mood
     const currentSongs = analysis.groups[selectedMood] || [];
     const currentDef = MOOD_DEFINITIONS[selectedMood] || MOOD_DEFINITIONS.pop;
@@ -277,6 +420,9 @@ function renderMoodView() {
             const playCount = song.playCount || 1;
             const targetUrl = song.watchUrl || (song.videoId ? `https://music.youtube.com/watch?v=${song.videoId}` : '');
 
+            const songMoodKey = classifySongMood(song);
+            const songMoodDef = MOOD_DEFINITIONS[songMoodKey];
+
             return `
                 <div class="song-item" data-url="${targetUrl}" data-video-id="${song.videoId || ''}">
                     <div class="song-thumb-wrapper">
@@ -291,7 +437,7 @@ function renderMoodView() {
                         <div class="song-title" title="${title}">${title}</div>
                         <div class="song-artist" title="${artist}">${artist}</div>
                     </div>
-                    <div class="song-meta">
+                    <div class="song-meta" style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;">
                         ${playCount > 1 ? `
                             <span class="badge-count">
                                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -300,6 +446,7 @@ function renderMoodView() {
                                 ${playCount}x
                             </span>
                         ` : ''}
+                        ${songMoodDef ? `<span style="font-size: 9.5px; color: ${songMoodDef.color}; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px; font-weight: 600;">${songMoodDef.shortName}</span>` : ''}
                     </div>
                 </div>
             `;
@@ -308,16 +455,8 @@ function renderMoodView() {
         songListEl.querySelectorAll('.song-item').forEach(el => {
             el.addEventListener('click', () => {
                 const url = el.getAttribute('data-url');
-                if (url) {
-                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                        const activeTab = tabs[0];
-                        if (activeTab && activeTab.url && activeTab.url.includes('music.youtube.com')) {
-                            chrome.tabs.update(activeTab.id, { url });
-                        } else {
-                            chrome.tabs.create({ url });
-                        }
-                    });
-                }
+                const videoId = el.getAttribute('data-video-id');
+                playSongSPA(url, videoId);
             });
         });
     }
@@ -515,6 +654,9 @@ function renderList() {
         const timeAgo = song.playedAt ? formatRelativeTime(song.playedAt) : (song.lastPlayed ? formatRelativeTime(song.lastPlayed) : '');
         const targetUrl = song.watchUrl || (song.videoId ? `https://music.youtube.com/watch?v=${song.videoId}` : '');
 
+        const songMoodKey = classifySongMood(song);
+        const songMoodDef = MOOD_DEFINITIONS[songMoodKey];
+
         return `
             <div class="song-item" data-url="${targetUrl}" data-video-id="${song.videoId || ''}">
                 <div class="song-thumb-wrapper">
@@ -529,16 +671,19 @@ function renderList() {
                     <div class="song-title" title="${title}">${title}</div>
                     <div class="song-artist" title="${artist}">${artist}</div>
                 </div>
-                <div class="song-meta">
-                    ${playCount > 1 ? `
-                        <span class="badge-count">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-10.23.1-.44-.37-.78-.7-.52-2.37 1.87-4.53 4.64-4.6 7.61-.06 2.53 1.26 4.47 1.26 4.47s-1.87-.5-2.83-2.07c-.17-.28-.59-.26-.73.04-.98 2.06-.7 4.54.76 6.38 1.83 2.3 4.87 3.24 7.69 2.27 3.32-1.15 5.5-4.49 4.96-7.95zm-6.66 7.4c-.21.05-.42.08-.64.08-1.54 0-2.85-1-3.23-2.4-.16-.62-.1-1.28.17-1.84.18-.38.71-.34.82.07.35 1.34 1.54 2.34 2.97 2.39.26.01.44.25.35.5-.1.28-.24.55-.44.7z"/>
-                            </svg>
-                            ${playCount}x
-                        </span>
-                    ` : ''}
-                    ${timeAgo ? `<span class="badge-time">${timeAgo}</span>` : ''}
+                <div class="song-meta" style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        ${playCount > 1 ? `
+                            <span class="badge-count">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-10.23.1-.44-.37-.78-.7-.52-2.37 1.87-4.53 4.64-4.6 7.61-.06 2.53 1.26 4.47 1.26 4.47s-1.87-.5-2.83-2.07c-.17-.28-.59-.26-.73.04-.98 2.06-.7 4.54.76 6.38 1.83 2.3 4.87 3.24 7.69 2.27 3.32-1.15 5.5-4.49 4.96-7.95zm-6.66 7.4c-.21.05-.42.08-.64.08-1.54 0-2.85-1-3.23-2.4-.16-.62-.1-1.28.17-1.84.18-.38.71-.34.82.07.35 1.34 1.54 2.34 2.97 2.39.26.01.44.25.35.5-.1.28-.24.55-.44.7z"/>
+                                </svg>
+                                ${playCount}x
+                            </span>
+                        ` : ''}
+                        ${timeAgo ? `<span class="badge-time">${timeAgo}</span>` : ''}
+                    </div>
+                    ${songMoodDef ? `<span style="font-size: 9px; color: ${songMoodDef.color}; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px; font-weight: 600;">${songMoodDef.shortName}</span>` : ''}
                 </div>
             </div>
         `;
@@ -547,20 +692,12 @@ function renderList() {
     // Scroll to top of list container when page changes
     listContainer.scrollTop = 0;
 
-    // Attach click to play
+    // Attach click to play via smooth SPA navigation
     listContainer.querySelectorAll('.song-item').forEach(el => {
         el.addEventListener('click', () => {
             const url = el.getAttribute('data-url');
-            if (url) {
-                chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                    const activeTab = tabs[0];
-                    if (activeTab && activeTab.url && activeTab.url.includes('music.youtube.com')) {
-                        chrome.tabs.update(activeTab.id, { url });
-                    } else {
-                        chrome.tabs.create({ url });
-                    }
-                });
-            }
+            const videoId = el.getAttribute('data-video-id');
+            playSongSPA(url, videoId);
         });
     });
 }
@@ -571,6 +708,97 @@ function updateTabButtons() {
     if (currentTab === 'top') document.getElementById('tab-top').classList.add('active');
     if (currentTab === 'mood') document.getElementById('tab-mood').classList.add('active');
     if (currentTab === 'settings') document.getElementById('tab-settings').classList.add('active');
+
+    const topActionsBar = document.getElementById('top-actions-bar');
+    if (topActionsBar) {
+        topActionsBar.style.display = (currentTab === 'top') ? 'block' : 'none';
+    }
+}
+
+// Bind Top Tab Action Buttons (Putar Top Mix & Buat Playlist Top)
+const btnPlayTopMix = document.getElementById('btn-play-top-mix');
+const btnCreateTop = document.getElementById('btn-create-top-playlist');
+const btnCreateTopText = document.getElementById('create-top-btn-text');
+
+if (btnPlayTopMix) {
+    btnPlayTopMix.onclick = () => {
+        const topList = Object.values(statsData || {}).sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
+        const videoIds = topList.map(s => s.videoId).filter(v => v && v.length === 11).slice(0, 50);
+
+        if (videoIds.length === 0) {
+            showToast('⚠️ Belum ada lagu teratas untuk diputar');
+            return;
+        }
+
+        chrome.tabs.query({ url: "*://music.youtube.com/*" }, (tabs) => {
+            if (tabs && tabs.length > 0) {
+                const targetTab = tabs.find(t => t.active) || tabs[0];
+                chrome.tabs.sendMessage(targetTab.id, {
+                    action: 'PLAY_MIX',
+                    detail: {
+                        title: 'Top Hits: Paling Sering Diputar - YT Tracker',
+                        description: `Antrean 50 lagu paling sering diputar dibuat otomatis oleh YT Music Tracker`,
+                        videoIds: videoIds
+                    }
+                }, () => {
+                    chrome.tabs.update(targetTab.id, { active: true });
+                    showToast('▶️ Memuat antrean Top Hits!');
+                });
+            } else {
+                chrome.tabs.create({ url: `https://music.youtube.com/watch?v=${videoIds[0]}` });
+            }
+        });
+    };
+}
+
+if (btnCreateTop) {
+    btnCreateTop.onclick = () => {
+        const topList = Object.values(statsData || {}).sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
+        const videoIds = topList.map(s => s.videoId).filter(v => v && v.length === 11).slice(0, 50);
+
+        if (videoIds.length === 0) {
+            showToast('⚠️ Belum ada lagu teratas untuk dibuat playlist');
+            return;
+        }
+
+        btnCreateTop.disabled = true;
+        if (btnCreateTopText) btnCreateTopText.innerText = '⏳ Membuat...';
+
+        chrome.tabs.query({ url: "*://music.youtube.com/*" }, (tabs) => {
+            if (tabs && tabs.length > 0) {
+                const targetTab = tabs.find(t => t.active) || tabs[0];
+                chrome.tabs.sendMessage(targetTab.id, {
+                    action: 'CREATE_PLAYLIST',
+                    detail: {
+                        title: 'Top Hits: Paling Sering Diputar - YT Tracker',
+                        description: `Daftar lagu paling sering diputar dibuat otomatis oleh YT Music Tracker.`,
+                        videoIds: videoIds
+                    }
+                }, (response) => {
+                    btnCreateTop.disabled = false;
+                    if (btnCreateTopText) btnCreateTopText.innerText = 'Buat Playlist Top';
+
+                    if (chrome.runtime.lastError || !response) {
+                        showToast('⚠️ Silakan refresh tab YouTube Music dulu!');
+                        return;
+                    }
+
+                    if (response.success) {
+                        chrome.tabs.update(targetTab.id, { active: true });
+                        showToast('✅ Playlist Top Hits berhasil dibuat!');
+                    } else {
+                        const err = response.error || 'Gagal membuat playlist';
+                        showToast(`❌ ${err}`);
+                    }
+                });
+            } else {
+                btnCreateTop.disabled = false;
+                if (btnCreateTopText) btnCreateTopText.innerText = 'Buat Playlist Top';
+                showToast('⚠️ Buka tab YouTube Music terlebih dahulu!');
+                chrome.tabs.create({ url: 'https://music.youtube.com' });
+            }
+        });
+    };
 }
 
 // Tab navigation handlers

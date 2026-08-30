@@ -417,6 +417,14 @@
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (!message || !message.action) return false;
 
+            if (message.action === 'NAVIGATE') {
+                window.dispatchEvent(new CustomEvent('ytm-navigate-request', {
+                    detail: { path: message.path || message.url || '/' }
+                }));
+                sendResponse({ success: true });
+                return true;
+            }
+
             if (message.action === 'PLAY_MIX') {
                 window.dispatchEvent(new CustomEvent('ytm-play-mix-request', {
                     detail: message.detail || {}

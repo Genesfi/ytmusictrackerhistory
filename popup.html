@@ -622,13 +622,30 @@
             display: flex;
             gap: 6px;
             overflow-x: auto;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
             margin-bottom: 10px;
-            scrollbar-width: none;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+            cursor: grab;
+            user-select: none;
+            touch-action: pan-x;
         }
 
         .mood-chips-scroll::-webkit-scrollbar {
-            display: none;
+            height: 3px;
+        }
+
+        .mood-chips-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .mood-chips-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .mood-chips-scroll:active {
+            cursor: grabbing;
         }
 
         .mood-chip {
@@ -862,6 +879,24 @@
             Opsi
         </button>
     </nav>
+
+    <!-- Top Tab Action Toolbar -->
+    <div id="top-actions-bar" style="display: none; padding: 6px 16px 6px 16px; background: #0f0f0f;">
+        <div class="mood-actions-bar" style="margin-bottom: 0;">
+            <button class="mood-action-btn btn-play-mix" id="btn-play-top-mix" title="Putar antrean lagu-lagu paling sering diputar">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                <span>Putar Top Mix</span>
+            </button>
+            <button class="mood-action-btn btn-create-playlist" id="btn-create-top-playlist" title="Simpan sebagai Playlist Baru di akun YouTube Music">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/>
+                </svg>
+                <span id="create-top-btn-text">Buat Playlist Top</span>
+            </button>
+        </div>
+    </div>
 
     <!-- Main Song List -->
     <main class="list-container" id="list-container">
