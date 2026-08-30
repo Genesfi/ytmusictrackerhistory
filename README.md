@@ -47,12 +47,16 @@ Menganalisis lagu berdasarkan 2 dimensi sekaligus: **Genre/Bahasa** dan **Sentim
 
 ---
 
-### 5. 📑 Shortcut Tombol "Histori" di Sidebar Navigasi
+### 5. 🪟 In-Page Floating Sidebar Drawer
+* **Tombol Melayang (*Floating Trigger*)**: Terdapat tombol tab `[ 🎵 Tracker ]` melayang di tepi kanan layar YouTube Music yang dapat diklik kapan saja.
+* **Panel Glassmorphism Slide-out**: Panel samping meluncur mulus dari sisi kanan dengan efek blur kaca modern.
+* **Tidak Pernah Tertutup Otomatis**: Panel dapat tetap terbuka saat Anda mencari musik atau mendengarkan lagu, lengkap dengan tab *Terakhir*, *Top Hits*, *Mood*, *Putar Mix*, dan *Buat Playlist*.
+* **Tutup Cepat**: Klik tombol `[ ✕ ]` atau tekan tombol `Esc` di keyboard.
+
+### 6. 📑 Shortcut Tombol "Histori" di Sidebar Navigasi
 * Menambahkan menu **"Histori"** langsung di sidebar navigasi samping (sejajar dengan Beranda, Eksplorasi, Koleksi) untuk membuka riwayat YouTube Music dengan satu klik.
 
----
-
-### 6. 📱 Dashboard Popup yang Elegan & Cepat
+### 7. 📱 Dashboard Popup yang Elegan & Cepat
 * **Tab Navigasi**: `Terakhir`, `Top`, `Mood`, dan `Opsi`.
 * **Horizontal Mousewheel & Drag**: Barisan chip mood dapat digeser dengan *mousewheel* atau klik-dan-seret (*drag-to-scroll*).
 * **Fitur Pencarian Cepat**: Saring riwayat lagu berdasarkan judul, artis, atau album.

@@ -89,11 +89,13 @@ async function loadData() {
 
             // Update settings inputs
             const shelfToggle = document.getElementById('setting-shelf-toggle');
+            const floatingToggle = document.getElementById('setting-floating-toggle');
             const sidebarToggle = document.getElementById('setting-sidebar-toggle');
             const minSecInput = document.getElementById('setting-min-sec');
             const minSecVal = document.getElementById('min-sec-val');
 
             if (shelfToggle) shelfToggle.checked = settings.enableHomeShelf !== false;
+            if (floatingToggle) floatingToggle.checked = settings.enableFloatingDrawer !== false;
             if (sidebarToggle) sidebarToggle.checked = settings.enableSidebarHistory !== false;
             if (minSecInput) minSecInput.value = settings.minScrobbleSeconds || 20;
             if (minSecVal) minSecVal.innerText = settings.minScrobbleSeconds || 20;
@@ -876,6 +878,7 @@ document.getElementById('btn-last-page').addEventListener('click', () => {
 function saveSettings() {
     const settings = {
         enableHomeShelf: document.getElementById('setting-shelf-toggle').checked,
+        enableFloatingDrawer: document.getElementById('setting-floating-toggle').checked,
         enableSidebarHistory: document.getElementById('setting-sidebar-toggle').checked,
         minScrobbleSeconds: parseInt(document.getElementById('setting-min-sec').value, 10) || 20
     };
@@ -883,6 +886,7 @@ function saveSettings() {
 }
 
 document.getElementById('setting-shelf-toggle').addEventListener('change', saveSettings);
+document.getElementById('setting-floating-toggle').addEventListener('change', saveSettings);
 document.getElementById('setting-sidebar-toggle').addEventListener('change', saveSettings);
 document.getElementById('setting-min-sec').addEventListener('input', (e) => {
     document.getElementById('min-sec-val').innerText = e.target.value;

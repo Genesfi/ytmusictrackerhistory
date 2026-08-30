@@ -528,3 +528,678 @@ ytmusic-guide-entry-renderer.ytm-custom-sidebar-item.is-active-tab {
     font-size: 14px !important;
 }
 
+/* ==========================================================================
+   4. IN-PAGE FLOATING TRACKER SIDEBAR DRAWER & TRIGGER BUTTON
+   ========================================================================== */
+
+/* Floating Trigger Button (Pinned on right edge) */
+.ytm-floating-trigger-btn {
+    position: fixed !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 2147483640 !important;
+    background: rgba(18, 18, 18, 0.92) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 0, 51, 0.4) !important;
+    border-right: none !important;
+    border-radius: 12px 0 0 12px !important;
+    padding: 10px 10px 10px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    color: #ffffff !important;
+    font-family: "YouTube Sans", "Roboto", "Segoe UI", sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    box-shadow: -4px 0 20px rgba(255, 0, 51, 0.25), -2px 0 8px rgba(0, 0, 0, 0.5) !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    user-select: none !important;
+}
+
+.ytm-floating-trigger-btn:hover {
+    background: rgba(28, 28, 28, 0.98) !important;
+    border-color: #ff0033 !important;
+    box-shadow: -6px 0 25px rgba(255, 0, 51, 0.45) !important;
+    padding-left: 16px !important;
+}
+
+.ytm-floating-trigger-btn.active {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(-50%) translateX(100%) !important;
+}
+
+.ytm-trigger-icon-wrap {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #ff0033 0%, #ff4757 100%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(255, 0, 51, 0.6) !important;
+}
+
+.ytm-trigger-text {
+    letter-spacing: 0.3px !important;
+}
+
+/* Sliding Floating Drawer */
+.ytm-floating-drawer {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 380px !important;
+    height: 100vh !important;
+    z-index: 2147483647 !important;
+    background: rgba(14, 14, 14, 0.92) !important;
+    backdrop-filter: blur(28px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.85) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-sizing: border-box !important;
+    font-family: "YouTube Sans", "Roboto", "Segoe UI", sans-serif !important;
+    color: #ffffff !important;
+}
+
+.ytm-floating-drawer.open {
+    transform: translateX(0) !important;
+}
+
+/* Drawer Header */
+.ytm-drawer-header {
+    padding: 16px 14px 10px 14px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    flex-shrink: 0 !important;
+}
+
+.ytm-drawer-title-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 12px !important;
+}
+
+.ytm-drawer-logo {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.2px !important;
+}
+
+.ytm-drawer-tag {
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    background: rgba(46, 213, 115, 0.15) !important;
+    color: #2ed573 !important;
+    border: 1px solid rgba(46, 213, 115, 0.3) !important;
+    padding: 1px 6px !important;
+    border-radius: 10px !important;
+    text-transform: uppercase !important;
+}
+
+.ytm-drawer-close-btn {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: none !important;
+    color: #aaaaaa !important;
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.ytm-drawer-close-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+/* Drawer Stats Row */
+.ytm-drawer-stats-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+}
+
+.ytm-drawer-stat-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 10px !important;
+    padding: 8px 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.ytm-stat-icon-wrap {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+}
+
+.ytm-stat-icon-wrap.note {
+    background: rgba(255, 0, 51, 0.15) !important;
+}
+
+.ytm-stat-icon-wrap.fire {
+    background: rgba(255, 120, 0, 0.15) !important;
+}
+
+.ytm-stat-val {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
+}
+
+.ytm-stat-lbl {
+    font-size: 9.5px !important;
+    color: #888888 !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+}
+
+/* Drawer Search Bar */
+.ytm-drawer-search-wrap {
+    display: flex !important;
+    align-items: center !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    padding: 6px 10px !important;
+    gap: 6px !important;
+    margin-bottom: 10px !important;
+}
+
+.ytm-drawer-search-wrap input {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: #ffffff !important;
+    font-size: 11.5px !important;
+    width: 100% !important;
+    font-family: inherit !important;
+}
+
+.ytm-drawer-search-wrap input::placeholder {
+    color: #777777 !important;
+}
+
+/* Drawer Tabs */
+.ytm-drawer-tabs {
+    display: flex !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    padding: 3px !important;
+    border-radius: 8px !important;
+    gap: 3px !important;
+}
+
+.ytm-drawer-tab-btn {
+    flex: 1 !important;
+    background: transparent !important;
+    border: none !important;
+    color: #888888 !important;
+    padding: 6px 0 !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.ytm-drawer-tab-btn:hover {
+    color: #ffffff !important;
+}
+
+.ytm-drawer-tab-btn.active {
+    background: #252525 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Drawer Actions Bar */
+.ytm-drawer-actions-bar {
+    display: flex !important;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
+}
+
+.ytm-drawer-btn {
+    flex: 1 !important;
+    padding: 7px 10px !important;
+    border-radius: 7px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    cursor: pointer !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.ytm-drawer-btn.btn-play-mix {
+    background: #ff0033 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(255, 0, 51, 0.3) !important;
+}
+
+.ytm-drawer-btn.btn-play-mix:hover {
+    background: #e6002e !important;
+    transform: translateY(-1px) !important;
+}
+
+.ytm-drawer-btn.btn-create-playlist {
+    background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3) !important;
+}
+
+.ytm-drawer-btn.btn-create-playlist:hover {
+    filter: brightness(1.1) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Mood Banner */
+.ytm-drawer-mood-banner {
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.15) 0%, rgba(253, 121, 168, 0.15) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
+    padding: 10px !important;
+    margin-top: 10px !important;
+    margin-bottom: 8px !important;
+}
+
+.ytm-mood-banner-title {
+    font-size: 9.5px !important;
+    text-transform: uppercase !important;
+    color: #a29bfe !important;
+    font-weight: 700 !important;
+    margin-bottom: 3px !important;
+}
+
+.ytm-mood-banner-main {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+
+.ytm-mood-banner-pct {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    color: #ff7675 !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    padding: 1px 6px !important;
+    border-radius: 8px !important;
+}
+
+.ytm-mood-progress-bg {
+    height: 3px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 2px !important;
+    margin-top: 6px !important;
+    overflow: hidden !important;
+}
+
+.ytm-mood-progress-fill {
+    height: 100% !important;
+    background: linear-gradient(90deg, #6c5ce7, #ff4e45) !important;
+    border-radius: 2px !important;
+    transition: width 0.3s ease !important;
+}
+
+/* Mood Chips */
+.ytm-drawer-chips-scroll {
+    display: flex !important;
+    gap: 5px !important;
+    overflow-x: auto !important;
+    padding-bottom: 5px !important;
+    margin-bottom: 8px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
+    cursor: grab !important;
+    user-select: none !important;
+}
+
+.ytm-drawer-chip {
+    padding: 5px 9px !important;
+    background: #1c1c1c !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    font-size: 10.5px !important;
+    font-weight: 600 !important;
+    color: #bbbbbb !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+}
+
+.ytm-drawer-chip:hover {
+    color: #ffffff !important;
+    background: #282828 !important;
+}
+
+.ytm-drawer-chip.active {
+    background: #ffffff !important;
+    color: #0f0f0f !important;
+    font-weight: 700 !important;
+}
+
+.ytm-drawer-section-header {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    color: #888888 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 6px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+/* Song List */
+.ytm-drawer-list {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 6px 14px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #333 transparent !important;
+}
+
+.ytm-drawer-song-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 7px 8px !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-radius: 8px !important;
+    margin-bottom: 6px !important;
+    gap: 9px !important;
+    cursor: pointer !important;
+    transition: all 0.18s ease !important;
+}
+
+.ytm-drawer-song-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    transform: translateX(-2px) !important;
+}
+
+.ytm-song-thumb-wrap {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+    background: #111 !important;
+}
+
+.ytm-song-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.ytm-song-play-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 0 !important;
+    transition: opacity 0.15s ease !important;
+}
+
+.ytm-drawer-song-item:hover .ytm-song-play-overlay {
+    opacity: 1 !important;
+}
+
+.ytm-song-info {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.ytm-song-title {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    color: #f1f1f1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin-bottom: 2px !important;
+}
+
+.ytm-song-artist {
+    font-size: 10px !important;
+    color: #999999 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.ytm-song-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 3px !important;
+    flex-shrink: 0 !important;
+}
+
+.ytm-badge-count {
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    color: #ff4757 !important;
+    background: rgba(255, 71, 87, 0.12) !important;
+    padding: 1px 5px !important;
+    border-radius: 4px !important;
+}
+
+.ytm-badge-time {
+    font-size: 9px !important;
+    color: #777777 !important;
+}
+
+.ytm-badge-mood {
+    font-size: 8.5px !important;
+    font-weight: 700 !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    padding: 1px 4px !important;
+    border-radius: 3px !important;
+}
+
+.ytm-drawer-empty {
+    text-align: center !important;
+    padding: 40px 14px !important;
+    color: #777777 !important;
+    font-size: 12px !important;
+}
+
+/* Drawer Footer */
+.ytm-drawer-footer {
+    padding: 8px 14px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-shrink: 0 !important;
+}
+
+.ytm-page-info {
+    font-size: 10.5px !important;
+    color: #888888 !important;
+}
+
+.ytm-page-btn-group {
+    display: flex !important;
+    gap: 4px !important;
+}
+
+.ytm-p-btn {
+    width: 26px !important;
+    height: 26px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.ytm-p-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Toast inside Drawer */
+.ytm-drawer-toast {
+    position: absolute !important;
+    bottom: 50px !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(20px) !important;
+    background: rgba(20, 20, 20, 0.95) !important;
+    color: #ffffff !important;
+    padding: 7px 14px !important;
+    border-radius: 20px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: all 0.25s ease !important;
+    z-index: 1000000 !important;
+    white-space: nowrap !important;
+}
+
+.ytm-drawer-toast.show {
+    opacity: 1 !important;
+    transform: translateX(-50%) translateY(0) !important;
+}
+
+/* Drawer Settings Components */
+.ytm-drawer-setting-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 9px !important;
+    padding: 10px 12px !important;
+    margin-bottom: 9px !important;
+}
+
+.ytm-setting-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.ytm-setting-label {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    color: #f1f1f1 !important;
+    margin-bottom: 2px !important;
+}
+
+.ytm-setting-desc {
+    font-size: 10px !important;
+    color: #888888 !important;
+    line-height: 1.3 !important;
+}
+
+/* Switch */
+.ytm-switch {
+    position: relative !important;
+    display: inline-block !important;
+    width: 34px !important;
+    height: 19px !important;
+    flex-shrink: 0 !important;
+}
+
+.ytm-switch input {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.ytm-slider {
+    position: absolute !important;
+    cursor: pointer !important;
+    inset: 0 !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    transition: 0.25s !important;
+    border-radius: 20px !important;
+}
+
+.ytm-slider:before {
+    position: absolute !important;
+    content: "" !important;
+    height: 13px !important;
+    width: 13px !important;
+    left: 3px !important;
+    bottom: 3px !important;
+    background-color: white !important;
+    transition: 0.25s !important;
+    border-radius: 50% !important;
+}
+
+.ytm-switch input:checked + .ytm-slider {
+    background-color: #ff0033 !important;
+}
+
+.ytm-switch input:checked + .ytm-slider:before {
+    transform: translateX(15px) !important;
+}
+
+/* Range Slider */
+.ytm-range-slider {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    height: 4px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 2px !important;
+    outline: none !important;
+    margin-top: 6px !important;
+}
+
+.ytm-range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    width: 14px !important;
+    height: 14px !important;
+    border-radius: 50% !important;
+    background: #ff0033 !important;
+    cursor: pointer !important;
+    box-shadow: 0 0 6px rgba(255, 0, 51, 0.6) !important;
+}
+
+
+

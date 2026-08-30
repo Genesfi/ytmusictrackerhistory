@@ -222,31 +222,65 @@
         return playlistId;
     }
 
-    // 2. Play Mix Request (Creates/Gets Mood Playlist and loads the entire queue into Up Next)
+    // Helper: Delete old playlist via InnerTube API to prevent library accumulation
+    async function deleteInnerTubePlaylist(playlistId) {
+        if (!playlistId || typeof window.ytcfg === 'undefined') return;
+        try {
+            const apiKey = window.ytcfg.get('INNERTUBE_API_KEY') || '';
+            const context = window.ytcfg.get('INNERTUBE_CONTEXT') || {};
+            const headers = await buildAuthHeaders();
+            await fetch(`/youtubei/v1/playlist/delete?key=${apiKey}&prettyPrint=false`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: headers,
+                body: JSON.stringify({
+                    context: context,
+                    playlistId: playlistId
+                })
+            });
+        } catch (_) {}
+    }
+
+    // Helper to get or create a clean, single Live Mix playlist (auto-deletes previous temporary mix)
+    async function getOrCreateLiveMixPlaylist(title, videoIds) {
+        const oldPlaylistId = localStorage.getItem('ytm_live_mix_playlist_id');
+
+        // Automatically delete the old temporary live mix playlist from user's account
+        if (oldPlaylistId) {
+            deleteInnerTubePlaylist(oldPlaylistId);
+        }
+
+        // Create a fresh clean single playlist containing ONLY current mix tracks
+        const newPlaylistId = await createInnerTubePlaylist(
+            `⚡ ${title}`,
+            'Playlist antrean dinamis yang otomatis diperbarui oleh YT Music Tracker.',
+            videoIds
+        );
+
+        if (newPlaylistId) {
+            localStorage.setItem('ytm_live_mix_playlist_id', newPlaylistId);
+        }
+        return newPlaylistId;
+    }
+
+    // 2. Play Mix Request (Loads all tracks into Up Next with automatic clean reset)
     window.addEventListener('ytm-play-mix-request', async function (e) {
         const detail = e.detail || {};
         const videoIds = detail.videoIds || [];
         const title = detail.title || 'Mood Mix - YT Tracker';
-        const description = detail.description || 'Antrean Mood Mix dibuat oleh YT Music Tracker';
-
         if (!videoIds || videoIds.length === 0) return;
         const firstId = videoIds[0];
 
         try {
-            let playlistId = moodPlaylistCache[title] || null;
+            // Create a clean fresh live mix playlist (auto-cleans previous temporary mix)
+            const livePlaylistId = await getOrCreateLiveMixPlaylist(title, videoIds);
+            const targetUrl = livePlaylistId ? `/watch?v=${firstId}&list=${livePlaylistId}` : `/watch?v=${firstId}`;
 
-            if (!playlistId) {
-                playlistId = await createInnerTubePlaylist(title, description, videoIds);
-            }
-
-            const targetUrl = playlistId ? `/watch?v=${firstId}&list=${playlistId}` : `/watch?v=${firstId}`;
-
-            // Trigger YouTube Music native SPA watchEndpoint with full playlist queue
             const watchDetail = {
                 endpoint: {
                     watchEndpoint: {
                         videoId: firstId,
-                        playlistId: playlistId || undefined
+                        playlistId: livePlaylistId || undefined
                     }
                 }
             };
@@ -259,12 +293,13 @@
                         composed: true,
                         detail: watchDetail
                     }));
-                } catch (err) {}
+                } catch (_) {}
 
                 if (typeof app.navigate_ === 'function') {
                     try {
                         app.navigate_(targetUrl);
-                    } catch (err) {}
+                        return;
+                    } catch (_) {}
                 }
             }
 
@@ -274,15 +309,15 @@
                     composed: true,
                     detail: watchDetail
                 }));
-            } catch (err) {}
+            } catch (_) {}
 
             try {
                 window.history.pushState({}, '', targetUrl);
-            } catch (err) {}
+                window.dispatchEvent(new CustomEvent('yt-navigate-finish'));
+            } catch (_) {}
 
         } catch (err) {
-            console.error('[YTM Bridge] Play mix error, falling back to direct video:', err);
-            // Fallback to direct video playback
+            console.error('[YTM Bridge] Play mix error fallback:', err);
             const moviePlayer = document.getElementById('movie_player') || document.querySelector('ytmusic-player #movie_player');
             if (moviePlayer && typeof moviePlayer.loadVideoById === 'function') {
                 try {

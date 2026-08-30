@@ -41,7 +41,8 @@
       ],
       "js": [
         "tracker.js",
-        "home-injector.js"
+        "home-injector.js",
+        "floating-panel.js"
       ],
       "css": [
         "style.css"
