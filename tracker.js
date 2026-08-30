@@ -412,10 +412,41 @@
         obs.observe(document.body, { childList: true, subtree: true });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', startTracking);
-    } else {
-        startTracking();
+    // Bridge Messages from Popup (Playlist Creation & Play Mix)
+    if (isExtensionAlive() && chrome.runtime && chrome.runtime.onMessage) {
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            if (!message || !message.action) return false;
+
+            if (message.action === 'PLAY_MIX') {
+                window.dispatchEvent(new CustomEvent('ytm-play-mix-request', {
+                    detail: message.detail || {}
+                }));
+                sendResponse({ success: true });
+                return true;
+            }
+
+            if (message.action === 'CREATE_PLAYLIST') {
+                const onResponse = (e) => {
+                    window.removeEventListener('ytm-create-playlist-response', onResponse);
+                    sendResponse(e.detail || { success: false, error: 'Tidak ada respons dari YouTube Music' });
+                };
+
+                window.addEventListener('ytm-create-playlist-response', onResponse);
+
+                window.dispatchEvent(new CustomEvent('ytm-create-playlist-request', {
+                    detail: message.detail || {}
+                }));
+
+                // Timeout fallback after 15s
+                setTimeout(() => {
+                    window.removeEventListener('ytm-create-playlist-response', onResponse);
+                }, 15000);
+
+                return true; // Keep message channel open for async response
+            }
+
+            return false;
+        });
     }
 
     console.log('[YTM Tracker] Core tracking engine initialized.');

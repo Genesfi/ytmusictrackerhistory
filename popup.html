@@ -547,6 +547,215 @@
             background: rgba(255, 0, 51, 0.2);
         }
 
+        /* === 6. MOOD & GENRE VIEW === */
+        .mood-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 16px;
+            display: none;
+            scrollbar-width: thin;
+            scrollbar-color: #333 transparent;
+        }
+
+        .mood-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .mood-container::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 4px;
+        }
+
+        .mood-banner {
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.25) 0%, rgba(255, 78, 69, 0.15) 100%);
+            border: 1px solid rgba(108, 92, 231, 0.4);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mood-banner-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: #a29bfe;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .mood-banner-main {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mood-banner-pct {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ff7675;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .mood-progress-bg {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .mood-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6c5ce7, #ff4e45);
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        .mood-chips-scroll {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            scrollbar-width: none;
+        }
+
+        .mood-chips-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mood-chip {
+            padding: 6px 10px;
+            background: #1c1c1c;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #bbbbbb;
+            white-space: nowrap;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .mood-chip:hover {
+            color: #ffffff;
+            background: #282828;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .mood-chip.active {
+            background: #ffffff;
+            color: #0f0f0f;
+            border-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.25);
+        }
+
+        .mood-actions-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .mood-action-btn {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-play-mix {
+            background: #ff0033;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(255, 0, 51, 0.35);
+        }
+
+        .btn-play-mix:hover {
+            background: #e6002e;
+            transform: translateY(-1px);
+        }
+
+        .btn-create-playlist {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.35);
+        }
+
+        .btn-create-playlist:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-create-playlist:disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .btn-copy-mix {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-copy-mix:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .mood-section-header {
+            font-size: 11px;
+            font-weight: 600;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s ease;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .toast-msg.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
         /* === 9. FOOTER === */
         .footer {
             padding: 8px 16px;
@@ -632,19 +841,25 @@
             <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.896 8.896 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
             </svg>
-            Terakhir Diputar
+            Terakhir
         </button>
         <button class="tab-btn" id="tab-top">
             <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-10.23.1-.44-.37-.78-.7-.52-2.37 1.87-4.53 4.64-4.6 7.61-.06 2.53 1.26 4.47 1.26 4.47s-1.87-.5-2.83-2.07c-.17-.28-.59-.26-.73.04-.98 2.06-.7 4.54.76 6.38 1.83 2.3 4.87 3.24 7.69 2.27 3.32-1.15 5.5-4.49 4.96-7.95zm-6.66 7.4c-.21.05-.42.08-.64.08-1.54 0-2.85-1-3.23-2.4-.16-.62-.1-1.28.17-1.84.18-.38.71-.34.82.07.35 1.34 1.54 2.34 2.97 2.39.26.01.44.25.35.5-.1.28-.24.55-.44.7z"/>
             </svg>
-            Paling Sering
+            Top
+        </button>
+        <button class="tab-btn" id="tab-mood">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+            Mood
         </button>
         <button class="tab-btn" id="tab-settings">
             <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
             </svg>
-            Pengaturan
+            Opsi
         </button>
     </nav>
 
@@ -652,6 +867,51 @@
     <main class="list-container" id="list-container">
         <!-- Rendered dynamically -->
     </main>
+
+    <!-- Mood Container -->
+    <div class="mood-container" id="mood-container">
+        <div class="mood-banner" id="mood-dominant-banner">
+            <div class="mood-banner-title">Mood Dominan Mendengarkan</div>
+            <div class="mood-banner-main">
+                <span id="dominant-mood-label">🌧️ Galau & Melow</span>
+                <span class="mood-banner-pct" id="dominant-mood-pct">0%</span>
+            </div>
+            <div class="mood-progress-bg">
+                <div class="mood-progress-fill" id="dominant-mood-bar" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <div class="mood-chips-scroll" id="mood-chips-list">
+            <!-- Rendered dynamically -->
+        </div>
+
+        <div class="mood-actions-bar" id="mood-actions-bar">
+            <button class="mood-action-btn btn-play-mix" id="btn-play-mood-mix" title="Putar langsung lagu di mood ini di YouTube Music">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                <span>Putar Mix</span>
+            </button>
+            <button class="mood-action-btn btn-create-playlist" id="btn-create-playlist" title="Simpan sebagai Playlist Baru di akun YouTube Music Anda">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/>
+                </svg>
+                <span id="create-playlist-btn-text">Buat Playlist</span>
+            </button>
+        </div>
+
+        <div class="mood-section-header">
+            <span id="mood-selected-title">Lagu di Mood Ini</span>
+            <span id="mood-song-count" style="font-size:10px; color:#aaa;">0 lagu</span>
+        </div>
+
+        <div id="mood-song-list">
+            <!-- Rendered dynamically -->
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-msg" id="toast-msg">Link Playlist disalin!</div>
 
     <!-- Pagination Controls -->
     <div class="pagination-container" id="pagination-controls">
