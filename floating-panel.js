@@ -556,6 +556,21 @@
                 closeDrawer();
             }
         });
+
+        // Close on click / tap outside drawer
+        document.addEventListener('pointerdown', (e) => {
+            if (!isOpen) return;
+            const drawer = document.getElementById('ytm-floating-drawer');
+            const triggerBtn = document.getElementById('ytm-floating-trigger-btn');
+            const path = (e.composedPath && e.composedPath()) || [];
+            
+            const isInsideDrawer = (drawer && drawer.contains(e.target)) || path.includes(drawer);
+            const isInsideTrigger = (triggerBtn && triggerBtn.contains(e.target)) || path.includes(triggerBtn);
+
+            if (!isInsideDrawer && !isInsideTrigger) {
+                closeDrawer();
+            }
+        });
     }
 
     function loadDrawerSettings() {
