@@ -349,7 +349,14 @@
 }
 
     // Monitor playback
+    let lastTickTime = Date.now();
+    let lastCurrentTime = 0;
+
     function checkPlaybackProgress() {
+        const now = Date.now();
+        const delta = (now - lastTickTime) / 1000;
+        lastTickTime = now;
+
         const video = document.querySelector('video');
         if (!video) return;
 
@@ -359,26 +366,42 @@
         const track = extractCurrentTrack();
         if (!track || !track.title) return;
 
-        // If song changed
+        const curTime = video.currentTime || 0;
+
+        // 1. If song changed
         if (!currentTrack || currentTrack.title !== track.title || currentTrack.artist !== track.artist) {
             currentTrack = track;
             trackPlayedSeconds = 0;
             hasCountedPlay = false;
+            lastCurrentTime = curTime;
 
             recordTrackPlay(track, false);
             return;
         }
 
-        // If currentTrack is missing videoId, attempt to update it
+        // 2. Loop / Replay detection: song restarted (currentTime dropped significantly to beginning)
+        if (lastCurrentTime > 15 && curTime < 4 && (hasCountedPlay || trackPlayedSeconds >= 10)) {
+            trackPlayedSeconds = 0;
+            hasCountedPlay = false;
+            lastCurrentTime = curTime;
+
+            recordTrackPlay(currentTrack, false);
+            return;
+        }
+        lastCurrentTime = curTime;
+
+        // 3. If currentTrack is missing videoId, attempt to update it
         if (currentTrack && !currentTrack.videoId && track.videoId) {
             currentTrack.videoId = track.videoId;
             currentTrack.watchUrl = `https://music.youtube.com/watch?v=${track.videoId}`;
             recordTrackPlay(currentTrack, false);
         }
 
-        // Play counting loop
-        if (!video.paused && !video.ended) {
-            trackPlayedSeconds += 1;
+        // 4. Play counting loop with accurate time delta
+        if (!video.paused && !video.ended && video.readyState >= 2) {
+            if (delta > 0 && delta < 5) {
+                trackPlayedSeconds += delta;
+            }
 
             const threshold = settings.minScrobbleSeconds || 20;
             if (!hasCountedPlay && trackPlayedSeconds >= threshold) {
@@ -390,6 +413,7 @@
 
     function startTracking() {
         if (pollInterval) clearInterval(pollInterval);
+        lastTickTime = Date.now();
         pollInterval = setInterval(checkPlaybackProgress, 500);
 
         // Instant capture on video events
@@ -397,9 +421,26 @@
             const video = document.querySelector('video');
             if (video && !video.__ytm_tracked) {
                 video.__ytm_tracked = true;
-                video.addEventListener('play', checkPlaybackProgress);
-                video.addEventListener('playing', checkPlaybackProgress);
+                video.addEventListener('play', () => {
+                    lastTickTime = Date.now();
+                    checkPlaybackProgress();
+                });
+                video.addEventListener('playing', () => {
+                    lastTickTime = Date.now();
+                    checkPlaybackProgress();
+                });
                 video.addEventListener('timeupdate', checkPlaybackProgress);
+                video.addEventListener('ended', () => {
+                    // Song finished
+                    if (currentTrack && !hasCountedPlay && trackPlayedSeconds >= 10) {
+                        hasCountedPlay = true;
+                        recordTrackPlay(currentTrack, true);
+                    }
+                });
+                video.addEventListener('seeked', () => {
+                    lastTickTime = Date.now();
+                    checkPlaybackProgress();
+                });
             }
         };
 
@@ -410,6 +451,15 @@
 
         const obs = new MutationObserver(hookVideo);
         obs.observe(document.body, { childList: true, subtree: true });
+    }
+
+    // Listen for live settings changes
+    if (isExtensionAlive() && chrome.storage && chrome.storage.onChanged) {
+        chrome.storage.onChanged.addListener((changes, area) => {
+            if (area === 'local' && changes[STORAGE_KEY_SETTINGS] && changes[STORAGE_KEY_SETTINGS].newValue) {
+                settings = { ...settings, ...changes[STORAGE_KEY_SETTINGS].newValue };
+            }
+        });
     }
 
     // Bridge Messages from Popup (Playlist Creation & Play Mix)
@@ -455,6 +505,13 @@
 
             return false;
         });
+    }
+
+    // Start tracking engine immediately
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startTracking);
+    } else {
+        startTracking();
     }
 
     console.log('[YTM Tracker] Core tracking engine initialized.');

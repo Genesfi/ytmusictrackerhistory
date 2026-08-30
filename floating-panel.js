@@ -897,7 +897,11 @@
         });
     }
 
-    // Listen for live storage updates
+    // Listen for live storage updates & in-page tracker events
+    window.addEventListener('ytm-tracker-song-updated', () => {
+        if (isOpen) loadDataAndRender();
+    });
+
     if (chrome.storage && chrome.storage.onChanged) {
         chrome.storage.onChanged.addListener((changes, area) => {
             if (area === 'local') {
