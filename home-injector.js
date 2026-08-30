@@ -353,7 +353,8 @@
             const mainTitleText = currentTabMode === 'recent' ? 'Terakhir diputar' : 'Paling sering diputar';
 
             const cardsContainer = shelfEl.querySelector('#ytm-tracker-cards-container');
-            if (cardsContainer) {
+            const existingSlider = shelfEl.querySelector('#ytm-shelf-slider-container');
+            if (cardsContainer && existingSlider) {
                 // In-place live update: update cards instantly without re-creating outer DOM
                 cardsContainer.innerHTML = displayList.length > 0 ? displayList.map((song, idx) => createSongCardHtml(song, idx)).join('') : `
                     <div class="ytm-native-empty-box">
@@ -404,6 +405,22 @@
                             </div>
                         `}
                     </div>
+
+                    <div class="ytm-native-slider-container" id="ytm-shelf-slider-container">
+                        <button class="ytm-native-slider-arrow ytm-native-slider-prev" id="ytm-slider-prev" title="Sebelumnya">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                            </svg>
+                        </button>
+                        <div class="ytm-native-slider-track" id="ytm-slider-track">
+                            <div class="ytm-native-slider-thumb" id="ytm-slider-thumb"></div>
+                        </div>
+                        <button class="ytm-native-slider-arrow ytm-native-slider-next" id="ytm-slider-next" title="Berikutnya">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                            </svg>
+                        </button>
+                    </div>
                 `;
             }
 
@@ -417,42 +434,154 @@
                 });
             }
 
-            // Arrow scroll navigation with dynamic button disable state
+            // Carousel, Header Buttons & Bottom Slider Controls Synchronization
             const carousel = shelfEl.querySelector('#ytm-tracker-cards-container');
             const prevBtn = shelfEl.querySelector('#ytm-shelf-prev');
             const nextBtn = shelfEl.querySelector('#ytm-shelf-next');
+            const sliderContainer = shelfEl.querySelector('#ytm-shelf-slider-container');
+            const sliderTrack = shelfEl.querySelector('#ytm-slider-track');
+            const sliderThumb = shelfEl.querySelector('#ytm-slider-thumb');
+            const sliderPrev = shelfEl.querySelector('#ytm-slider-prev');
+            const sliderNext = shelfEl.querySelector('#ytm-slider-next');
 
-            if (carousel && prevBtn && nextBtn) {
-                const updateNavButtons = () => {
-                    const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
-                    if (carousel.scrollLeft <= 5) {
-                        prevBtn.setAttribute('disabled', 'true');
-                    } else {
-                        prevBtn.removeAttribute('disabled');
+            if (carousel && sliderContainer && sliderTrack && sliderThumb) {
+                let isDragging = false;
+                let dragStartX = 0;
+                let dragStartScrollLeft = 0;
+
+                const updateSliderAndButtons = () => {
+                    const scrollWidth = carousel.scrollWidth;
+                    const clientWidth = carousel.clientWidth;
+                    const maxScrollLeft = scrollWidth - clientWidth;
+
+                    // If items don't overflow, hide bottom slider
+                    if (maxScrollLeft <= 5) {
+                        sliderContainer.style.display = 'none';
+                        if (prevBtn) prevBtn.setAttribute('disabled', 'true');
+                        if (nextBtn) nextBtn.setAttribute('disabled', 'true');
+                        return;
                     }
-                    if (carousel.scrollLeft >= maxScrollLeft - 5 || maxScrollLeft <= 0) {
-                        nextBtn.setAttribute('disabled', 'true');
-                    } else {
-                        nextBtn.removeAttribute('disabled');
+
+                    sliderContainer.style.display = 'flex';
+
+                    // Update Top and Bottom Navigation Button states
+                    const isAtStart = carousel.scrollLeft <= 5;
+                    const isAtEnd = carousel.scrollLeft >= maxScrollLeft - 5;
+
+                    if (prevBtn) {
+                        if (isAtStart) prevBtn.setAttribute('disabled', 'true');
+                        else prevBtn.removeAttribute('disabled');
+                    }
+                    if (sliderPrev) {
+                        if (isAtStart) sliderPrev.setAttribute('disabled', 'true');
+                        else sliderPrev.removeAttribute('disabled');
+                    }
+
+                    if (nextBtn) {
+                        if (isAtEnd) nextBtn.setAttribute('disabled', 'true');
+                        else nextBtn.removeAttribute('disabled');
+                    }
+                    if (sliderNext) {
+                        if (isAtEnd) sliderNext.setAttribute('disabled', 'true');
+                        else sliderNext.removeAttribute('disabled');
+                    }
+
+                    // Update Slider Thumb position and size
+                    if (!isDragging) {
+                        const trackWidth = sliderTrack.clientWidth;
+                        if (trackWidth <= 0) return;
+
+                        const visibleRatio = clientWidth / scrollWidth;
+                        const thumbWidth = Math.max(36, Math.min(trackWidth, trackWidth * visibleRatio));
+                        const maxThumbLeft = trackWidth - thumbWidth;
+                        const scrollRatio = maxScrollLeft > 0 ? (carousel.scrollLeft / maxScrollLeft) : 0;
+                        const thumbLeft = Math.max(0, Math.min(maxThumbLeft, scrollRatio * maxThumbLeft));
+
+                        sliderThumb.style.width = `${thumbWidth}px`;
+                        sliderThumb.style.transform = `translateX(${thumbLeft}px)`;
                     }
                 };
 
-                prevBtn.addEventListener('click', (e) => {
+                // Scroll Left / Right Helper
+                const scrollStep = (direction) => {
+                    const scrollAmount = Math.max(340, carousel.clientWidth * 0.75);
+                    carousel.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+                };
+
+                if (prevBtn) prevBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); scrollStep(-1); };
+                if (nextBtn) nextBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); scrollStep(1); };
+                if (sliderPrev) sliderPrev.onclick = (e) => { e.preventDefault(); e.stopPropagation(); scrollStep(-1); };
+                if (sliderNext) sliderNext.onclick = (e) => { e.preventDefault(); e.stopPropagation(); scrollStep(1); };
+
+                // Track click to jump
+                sliderTrack.onpointerdown = (e) => {
+                    if (e.target === sliderThumb) return;
                     e.preventDefault();
                     e.stopPropagation();
-                    const scrollAmount = Math.max(340, carousel.clientWidth * 0.75);
-                    carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                });
 
-                nextBtn.addEventListener('click', (e) => {
+                    const rect = sliderTrack.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const trackWidth = rect.width;
+                    const clickRatio = Math.max(0, Math.min(1, clickX / trackWidth));
+
+                    const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+                    carousel.scrollTo({
+                        left: clickRatio * maxScrollLeft,
+                        behavior: 'smooth'
+                    });
+                };
+
+                // Thumb Drag handling (Pointer Events)
+                sliderThumb.onpointerdown = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    const scrollAmount = Math.max(340, carousel.clientWidth * 0.75);
-                    carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                });
+                    isDragging = true;
+                    sliderThumb.classList.add('is-dragging');
+                    dragStartX = e.clientX;
+                    dragStartScrollLeft = carousel.scrollLeft;
 
-                carousel.addEventListener('scroll', updateNavButtons, { passive: true });
-                setTimeout(updateNavButtons, 100);
+                    try {
+                        sliderThumb.setPointerCapture(e.pointerId);
+                    } catch (_) {}
+
+                    const onPointerMove = (moveEvent) => {
+                        if (!isDragging) return;
+                        const deltaX = moveEvent.clientX - dragStartX;
+                        const trackWidth = sliderTrack.clientWidth;
+                        const thumbWidth = sliderThumb.clientWidth;
+                        const maxThumbLeft = trackWidth - thumbWidth;
+                        const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+
+                        if (maxThumbLeft > 0 && maxScrollLeft > 0) {
+                            const startThumbLeft = (dragStartScrollLeft / maxScrollLeft) * maxThumbLeft;
+                            const targetThumbLeft = Math.max(0, Math.min(maxThumbLeft, startThumbLeft + deltaX));
+                            const targetScrollLeft = Math.max(0, Math.min(maxScrollLeft, (targetThumbLeft / maxThumbLeft) * maxScrollLeft));
+
+                            sliderThumb.style.transform = `translateX(${targetThumbLeft}px)`;
+                            carousel.scrollLeft = targetScrollLeft;
+                        }
+                    };
+
+                    const onPointerUp = (upEvent) => {
+                        isDragging = false;
+                        sliderThumb.classList.remove('is-dragging');
+                        try {
+                            sliderThumb.releasePointerCapture(upEvent.pointerId);
+                        } catch (_) {}
+                        window.removeEventListener('pointermove', onPointerMove);
+                        window.removeEventListener('pointerup', onPointerUp);
+                        window.removeEventListener('pointercancel', onPointerUp);
+                        updateSliderAndButtons();
+                    };
+
+                    window.addEventListener('pointermove', onPointerMove);
+                    window.addEventListener('pointerup', onPointerUp);
+                    window.addEventListener('pointercancel', onPointerUp);
+                };
+
+                carousel.addEventListener('scroll', updateSliderAndButtons, { passive: true });
+                window.addEventListener('resize', updateSliderAndButtons, { passive: true });
+                setTimeout(updateSliderAndButtons, 100);
             }
 
             // Card click to play listeners (Direct Playback)

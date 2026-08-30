@@ -242,7 +242,6 @@ ytmusic-guide-entry-renderer.ytm-custom-sidebar-item.is-active-tab {
     display: flex !important;
     gap: 24px !important;
     overflow-x: auto !important;
-    scroll-behavior: smooth !important;
     padding: 2px 0 16px 0 !important;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
@@ -443,6 +442,84 @@ ytmusic-guide-entry-renderer.ytm-custom-sidebar-item.is-active-tab {
     text-decoration: underline !important;
 }
 
+/* === 4. BOTTOM CAROUSEL SLIDER & SCROLLBAR (1:1 NATIVE FULL-WIDTH) === */
+.ytm-native-slider-container {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-top: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    user-select: none !important;
+}
+
+.ytm-native-slider-arrow {
+    background: transparent !important;
+    border: none !important;
+    color: #aaaaaa !important;
+    cursor: pointer !important;
+    width: 22px !important;
+    height: 22px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    transition: color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease !important;
+    flex-shrink: 0 !important;
+}
+
+.ytm-native-slider-arrow:not([disabled]):hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+}
+
+.ytm-native-slider-arrow[disabled],
+.ytm-native-slider-arrow:disabled {
+    opacity: 0.2 !important;
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
+.ytm-native-slider-track {
+    flex: 1 !important;
+    height: 4px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-radius: 999px !important;
+    position: relative !important;
+    cursor: pointer !important;
+    transition: height 0.15s ease, background-color 0.15s ease !important;
+}
+
+.ytm-native-slider-container:hover .ytm-native-slider-track {
+    height: 6px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.ytm-native-slider-thumb {
+    height: 100% !important;
+    min-width: 60px !important;
+    background: #717171 !important;
+    border-radius: 999px !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    cursor: grab !important;
+    transition: background-color 0.15s ease !important;
+    touch-action: none !important;
+    will-change: transform;
+}
+
+.ytm-native-slider-container:hover .ytm-native-slider-thumb,
+.ytm-native-slider-thumb:hover {
+    background: #9a9a9a !important;
+}
+
+.ytm-native-slider-thumb.is-dragging {
+    background: #ffffff !important;
+    cursor: grabbing !important;
+}
+
 /* Empty State */
 .ytm-native-empty-box {
     width: 100% !important;
@@ -450,3 +527,4 @@ ytmusic-guide-entry-renderer.ytm-custom-sidebar-item.is-active-tab {
     color: #888888 !important;
     font-size: 14px !important;
 }
+
